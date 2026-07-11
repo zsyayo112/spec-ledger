@@ -14,6 +14,11 @@ Read `.specledger.json` at the project root (if missing, ask where specs live �
 
 If no spec exists for the ticket, say so and offer `/spec` instead — never fabricate a retroactive spec silently. If the owner wants a retroactive record, write one via `/spec` and mark it honestly as written post-implementation.
 
+Check the spec's frontmatter before running anything:
+
+- `status: done` → already closed; report and stop (re-verify only on explicit request).
+- `decisions_resolved: false`, or status `draft` / `pending-decisions` → stop. Pending decisions are resolved through `/spec`'s Resume & amend flow first; closing over an unsigned spec turns a guess into a record.
+
 ## Step 2 — Run acceptance, for real
 
 Execute every item in the spec's Acceptance section, one by one:
@@ -49,6 +54,7 @@ Compare what was actually built against the spec — use git history scoped to t
 
 - Frontmatter: `status: done`, `updated: <today>`.
 - If `devlogPath` is configured, append a 2–4 line summary (ticket, what shipped, key deviation or lesson), matching the devlog's existing entry format.
+- Self-check: run `node <sibling-spec-skill>/scripts/spec-status.mjs --ci` (the script ships at `../spec/scripts/spec-status.mjs` relative to this SKILL.md) and fix anything it flags on this spec.
 - Remind the user: commit with the ticket key; move the ticket to Done in their tracker.
 
 ## Superseding instead of closing

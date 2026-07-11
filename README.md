@@ -15,7 +15,7 @@ Four mechanisms:
 
 | Skill | What it does |
 |---|---|
-| `/spec <ticket>` | Inventory → itemized decision sign-off → write the spec |
+| `/spec <ticket>` | Inventory → itemized decision sign-off → write the spec; re-run on an existing spec to resolve pending decisions or amend |
 | `/spec-close <ticket>` | Run acceptance for real → record deviations → stamp `done` |
 
 ## Install
@@ -41,11 +41,11 @@ The skill carries the mechanisms; your project owns its conventions.
 ## Audit
 
 ```bash
-node ~/spec-ledger/skills/spec/scripts/spec-status.mjs docs/specs          # report
-node ~/spec-ledger/skills/spec/scripts/spec-status.mjs docs/specs --ci    # exit 1 on violations
+node ~/spec-ledger/skills/spec/scripts/spec-status.mjs         # specs dir from .specledger.json (or pass one)
+node ~/spec-ledger/skills/spec/scripts/spec-status.mjs --ci    # exit 1 on violations
 ```
 
-Flags: stale `in-progress` specs (default threshold 14 days, `--stale-days N`), `done` without a Closeout section, work started before decisions were signed off, missing frontmatter or filename slug, inconsistent supersession.
+Flags: stale `in-progress` specs (default threshold 14 days, `--stale-days N`), `done` without a Closeout section, work started before decisions were signed off, missing frontmatter or filename slug, inconsistent or dangling supersession, duplicate live specs for one ticket, ticket IDs that don't match the configured pattern.
 
 ## Status
 

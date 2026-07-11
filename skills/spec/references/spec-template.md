@@ -4,7 +4,7 @@ status: draft
 created:
 updated:
 superseded_by: null
-decisions_resolved: true
+decisions_resolved: false
 ---
 
 # <TICKET> · <Title>
@@ -41,9 +41,12 @@ decisions_resolved: true
 
 ## Decisions
 
+<!-- Status: pending | approved. Only the owner's explicit answer flips a row to approved;
+     when no pending rows remain, set frontmatter decisions_resolved: true. -->
+
 | # | Decision | Rationale | Status |
 |---|----------|-----------|--------|
-| D1 | | | approved |
+| D1 | | | pending |
 
 ## Technical approach
 

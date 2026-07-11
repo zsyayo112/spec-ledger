@@ -19,7 +19,7 @@ Four principles, in order:
 
 Look for `.specledger.json` at the project root.
 
-**If present**, read it and continue. Schema:
+**If present**, read it and continue (if `<specsDir>/TEMPLATE.md` has gone missing, recreate it per point 5 below). Schema:
 
 ```json
 {
@@ -29,6 +29,8 @@ Look for `.specledger.json` at the project root.
   "language": "auto"
 }
 ```
+
+`specsDir` — where specs live · `ticketPattern` — ticket-ID regex, `null` for slug-only projects · `devlogPath` — devlog file for closeout summaries, `null` to skip · `language` — language specs and the template are written in; `"auto"` follows the project's existing docs.
 
 **If absent, bootstrap** (first run in this project):
 
@@ -48,9 +50,14 @@ Establish two things: the ticket ID and a one-sentence goal.
 - If the goal is still unclear, ask before proceeding.
 - One spec = one ticket = one deliverable. If the ticket actually bundles several deliverables, say so and suggest splitting instead of writing a bloated spec.
 
+Then check `<specsDir>` for an existing spec on this ticket:
+
+- `draft` / `pending-decisions` / `in-progress` → switch to **Resume & amend** (below). Never write a second live spec for the same ticket.
+- `done` / `superseded` → report it; new work on the ticket means a new spec that supersedes the old one (set the old spec's `superseded_by`).
+
 ## Step 2 — Inventory (the load-bearing step)
 
-Search the codebase for everything this ticket touches, then produce two lists.
+Search the codebase for everything this ticket touches, then produce two lists. For tickets spanning many subsystems, fan out parallel read-only search agents to locate candidates — but a row only enters the table after you open the file yourself.
 
 **"Already exists — do not rebuild"**: every capability, module, config, or convention the executor might otherwise re-implement. Rules:
 
@@ -72,15 +79,15 @@ Identify the open technical choices this spec must not make unilaterally: anythi
 - Present them to the owner with AskUserQuestion (batch up to 4 per call).
 - Record each verdict in the spec's Decisions table: decision, rationale, `approved`.
 
-The owner may defer a decision: record it as `pending`, set frontmatter `decisions_resolved: false` and `status: pending-decisions`. **Never fill in a decision the owner didn't make** — a guess recorded as "approved" is this skill's one unforgivable failure.
+When every decision is `approved`, set frontmatter `decisions_resolved: true`. The owner may defer a decision: record it as `pending`, set `decisions_resolved: false` and `status: pending-decisions`. **Never fill in a decision the owner didn't make** — a guess recorded as "approved" is this skill's one unforgivable failure.
 
 Trivial choices with an obvious conventional answer are not decisions — follow the codebase's existing convention and note it in the spec.
 
 ## Step 4 — Write the spec
 
-Path: `<specsDir>/<TICKET>-<slug>.md`. The slug is mandatory (kebab-case, 2–5 words).
+Path: `<specsDir>/<TICKET>-<slug>.md`. The slug is mandatory (kebab-case, 2–5 words). If the ticket ID contains filename-hostile characters (`#123`), use the safe part in the filename (`123-<slug>.md`) and quote the full ID in frontmatter (`ticket: "#123"`).
 
-Template: `<specsDir>/TEMPLATE.md` if present, else `references/spec-template.md`. Write in the language of the project's existing documentation.
+Template: `<specsDir>/TEMPLATE.md` if present, else `references/spec-template.md`. Write in the configured `language`; `auto` means the language of the project's existing documentation.
 
 Frontmatter:
 
@@ -104,6 +111,16 @@ Content rules:
 
 Finish by reporting the file path, status, and any pending decisions. Set `status: in-progress` only when the owner says implementation is starting.
 
+## Resume & amend
+
+Running `/spec` on a ticket that already has a live spec resumes it — never a parallel document:
+
+- **Pending decisions**: re-present each `pending` row via AskUserQuestion and record the verdicts. When no `pending` rows remain, set `decisions_resolved: true` and move `status` off `pending-decisions`.
+- **New choices or scope changes mid-implementation**: append new D-rows (never rewrite an approved row) and update In/Out scope with the owner's sign-off.
+- Bump `updated` on every amendment.
+
+What was *built* differently from plan is not an amendment — that record belongs in `/spec-close`'s Deviations table.
+
 ## Lifecycle
 
 ```
@@ -111,10 +128,10 @@ draft → pending-decisions → in-progress → done
    (any state) → superseded   [must set superseded_by]
 ```
 
-`/spec-close` owns the transition to `done`. Audit anytime:
+`/spec-close` owns the transition to `done`. Audit anytime (`scripts/spec-status.mjs` lives next to this SKILL.md; it reads `.specledger.json` for the specs dir, or pass one explicitly; `--ci` exits 1 on violations):
 
 ```
-node <this-skill>/scripts/spec-status.mjs <specsDir>
+node <this-skill-dir>/scripts/spec-status.mjs
 ```
 
 ## Red lines
@@ -122,4 +139,4 @@ node <this-skill>/scripts/spec-status.mjs <specsDir>
 - No inventory row without opening the file. No invented paths.
 - No decision recorded as approved without the owner's explicit answer.
 - No acceptance criterion that isn't executable or precisely observable.
-- Never edit existing specs outside this skill's own flows (`/spec-close` appends Closeout; supersession updates frontmatter).
+- Never edit existing specs outside this skill's own flows (Resume & amend here; `/spec-close` appends Closeout; supersession updates frontmatter).
