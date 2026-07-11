@@ -53,7 +53,7 @@ Establish two things: the ticket ID and a one-sentence goal.
 Then check `<specsDir>` for an existing spec on this ticket:
 
 - `draft` / `pending-decisions` / `in-progress` → switch to **Resume & amend** (below). Never write a second live spec for the same ticket.
-- `done` / `superseded` → report it; new work on the ticket means a new spec that supersedes the old one (set the old spec's `superseded_by`).
+- `done` / `superseded` / `abandoned` → report it; new work on the ticket means a new spec that supersedes the old one (set the old spec's `superseded_by`).
 
 ## Step 2 — Inventory (the load-bearing step)
 
@@ -94,7 +94,7 @@ Frontmatter:
 ```yaml
 ---
 ticket: CAN-70
-status: draft            # draft | pending-decisions | in-progress | done | superseded
+status: draft            # draft | pending-decisions | in-progress | done | superseded | abandoned
 created: 2026-07-10
 updated: 2026-07-10
 superseded_by: null      # slug of the replacing spec, if any
@@ -125,7 +125,8 @@ What was *built* differently from plan is not an amendment — that record belon
 
 ```
 draft → pending-decisions → in-progress → done
-   (any state) → superseded   [must set superseded_by]
+   (any state) → superseded   [replaced: superseded_by is mandatory]
+   (any state) → abandoned    [dropped, no replacement]
 ```
 
 `/spec-close` owns the transition to `done`. Audit anytime (`scripts/spec-status.mjs` lives next to this SKILL.md; it reads `.specledger.json` for the specs dir, or pass one explicitly; `--ci` exits 1 on violations):

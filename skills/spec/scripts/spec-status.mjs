@@ -9,11 +9,12 @@
 //
 // Reads ./.specledger.json when present: specsDir (default dir) and
 // ticketPattern (validates each spec's ticket field).
+// Exits 2 on an unreadable specs dir, malformed .specledger.json, or bad flags.
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
 
-const STATUSES = ['draft', 'pending-decisions', 'in-progress', 'done', 'superseded'];
+const STATUSES = ['draft', 'pending-decisions', 'in-progress', 'done', 'superseded', 'abandoned'];
 const SKIP = new Set(['README.md', 'TEMPLATE.md']);
 const CLOSEOUT_RE = /^##\s+(Closeout|收口)/m;
 // Filename that is only a ticket id (e.g. E5-1.md, CAN-69.md, 123.md) — no descriptive slug.
@@ -23,12 +24,20 @@ const args = process.argv.slice(2);
 const ci = args.includes('--ci');
 const staleIdx = args.indexOf('--stale-days');
 const staleDays = staleIdx >= 0 ? Number(args[staleIdx + 1]) : 14;
+if (!Number.isFinite(staleDays) || staleDays < 0) {
+  console.error(`spec-status: --stale-days needs a non-negative number, got "${args[staleIdx + 1] ?? ''}"`);
+  process.exit(2);
+}
 
 let config = {};
 try {
   config = JSON.parse(readFileSync('.specledger.json', 'utf8'));
-} catch {
-  // no config — fall back to defaults
+} catch (e) {
+  if (e.code !== 'ENOENT') {
+    // a broken config must fail loudly — silently auditing the wrong dir is worse
+    console.error(`spec-status: cannot read .specledger.json: ${e.message}`);
+    process.exit(2);
+  }
 }
 
 const dir =
@@ -101,7 +110,7 @@ for (const file of files) {
   else if (ticketRe && !ticketRe.test(fm.ticket)) {
     flag(file, `ticket "${fm.ticket}" does not match configured ticketPattern`);
   }
-  if (fm.ticket && status !== 'superseded') {
+  if (fm.ticket && status !== 'superseded' && status !== 'abandoned') {
     const list = ticketFiles.get(fm.ticket) ?? [];
     list.push(file);
     ticketFiles.set(fm.ticket, list);
@@ -137,7 +146,7 @@ for (const { file, ref } of supersededRefs) {
 }
 for (const [ticket, list] of ticketFiles) {
   if (list.length > 1) {
-    flag(list[0], `ticket ${ticket} has ${list.length} non-superseded specs: ${list.join(', ')}`);
+    flag(list[0], `ticket ${ticket} has ${list.length} live specs: ${list.join(', ')}`);
   }
 }
 

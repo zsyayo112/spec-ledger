@@ -66,4 +66,4 @@ decisions_resolved: false
 
 <!-- Pitfalls, binding conventions (with their source), what NOT to do. -->
 
-<!-- ## Closeout — appended by /spec-close. Do not write this section by hand. -->
+<!-- ## Closeout and ## Verification attempt sections are appended by /spec-close. Do not write them by hand. -->
