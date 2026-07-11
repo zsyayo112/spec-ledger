@@ -1,6 +1,6 @@
 {
   "name": "spec-ledger",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Brownfield, single-ticket spec workflow: inventory the codebase before writing, sign off decisions item by item, close out with real acceptance runs and recorded deviations, keep spec status auditable.",
   "author": {
     "name": "zsyayo112"

@@ -8,6 +8,8 @@ license: MIT
 
 Close the loop on ONE implemented spec. A spec is only `done` when its acceptance commands actually ran and passed, and the deviations between plan and reality are on record.
 
+Requirements: repository read/write, shell execution (acceptance commands run for real), and interactive owner confirmation; Node.js ≥ 18 for the self-check script; git for deviation evidence.
+
 ## Step 1 — Locate
 
 Read `.specledger.json` at the project root (if missing, ask where specs live — do not bootstrap here; that is `/spec`'s job). Find the spec by the ticket ID from the invocation, or ask.

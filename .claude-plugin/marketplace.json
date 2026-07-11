@@ -1,0 +1,14 @@
+{
+  "name": "spec-ledger",
+  "owner": {
+    "name": "zsyayo112"
+  },
+  "description": "Brownfield, single-ticket spec workflow for coding agents.",
+  "plugins": [
+    {
+      "name": "spec-ledger",
+      "source": "./",
+      "description": "Inventory-first ticket specs with itemized decision sign-off, real acceptance runs at closeout, and an auditable ledger."
+    }
+  ]
+}

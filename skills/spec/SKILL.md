@@ -8,6 +8,8 @@ license: MIT
 
 Write an implementation spec for ONE ticket in an existing codebase. The spec is a contract between the owner (human) and the executor (AI or human): what already exists, what was decided and why, what to build, and how completion is proven.
 
+Requirements: an agent with repository read/write, shell access, and interactive owner Q&A (AskUserQuestion in Claude Code — other agents substitute their equivalent); Node.js ≥ 18 for the audit script.
+
 Four principles, in order:
 
 1. **Inventory before writing.** Never spec against an imagined codebase.
